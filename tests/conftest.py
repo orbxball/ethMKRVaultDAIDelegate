@@ -64,6 +64,12 @@ def token(andre, Token):
 def gov(accounts):
     yield accounts.at('0xFEB4acf3df3cDEA7399794D0869ef76A6EfAff52', force=True)
 
+
+@pytest.fixture
+def dev_ms(accounts):
+    yield accounts.at('0x846e211e8ba920B353FB717631C015cf04061Cc9', force=True)
+
+
 @pytest.fixture
 def rewards(gov):
     yield gov  # TODO: Add rewards contract
@@ -99,4 +105,3 @@ def whale(accounts, history, web3):
     # weth whale
     acc = accounts.at('0xee2826453A4Fd5AfeB7ceffeEF3fFA2320081268', force=True)
     yield acc
-
