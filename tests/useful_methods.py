@@ -3,7 +3,7 @@ import requests
 
 def genericStateOfStrat(strategy, currency, vault):
     decimals = currency.decimals()
-    print(f"\n----state of {strategy.name()}----")
+    print(f"\n--- state of {strategy.name()} ---")
 
     print("Want:", currency.balanceOf(strategy)/  (1 ** decimals))
     print("Total assets estimate:", strategy.estimatedTotalAssets()/  (10 ** decimals))
@@ -24,7 +24,7 @@ def genericStateOfStrat(strategy, currency, vault):
 
 def genericStateOfVault(vault, currency):
     decimals = currency.decimals()
-    print(f"\n----state of {vault.name()} vault----")
+    print(f"\n--- state of {vault.name()} vault ---")
     balance = vault.totalAssets()/  (10 ** decimals)
     print(f"Total Assets: {balance:.5f}")
     balance = vault.totalDebt()/  (10 ** decimals)
