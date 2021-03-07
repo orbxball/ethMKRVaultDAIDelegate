@@ -116,6 +116,10 @@ contract Strategy is BaseStrategy {
         ManagerLike(cdp_manager).cdpAllow(cdpId, dst, 1);
     }
 
+    function gulp(uint srcCdp) public onlyAuthorized {
+        ManagerLike(cdp_manager).shift(srcCdp, cdpId);
+    }
+
     function _approveAll() internal {
         IERC20(want).approve(mcd_join_eth_a, uint(-1));
         IERC20(dai).approve(mcd_join_dai, uint(-1));
