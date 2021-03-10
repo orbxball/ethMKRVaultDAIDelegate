@@ -1,15 +1,10 @@
 import pytest
-from brownie import config, Wei
-
-@pytest.fixture
-def andre(accounts):
-    # Andre, giver of tokens, and maker of yield
-    yield accounts[0]
+from brownie import config, Wei, Contract
 
 
 @pytest.fixture
 def gov(accounts):
-    # yearn multis... I mean YFI governance. I swear!
+    # ychad.eth
     yield accounts.at('0xFEB4acf3df3cDEA7399794D0869ef76A6EfAff52', force=True)
 
 
@@ -20,20 +15,14 @@ def rewards(gov):
 
 @pytest.fixture
 def guardian(accounts):
-    # YFI Whale, probably
-    yield accounts.at('0x846e211e8ba920b353fb717631c015cf04061cc9', force=True)
+    # dev.ychad.eth
+    yield accounts.at('0x846e211e8ba920B353FB717631C015cf04061Cc9', force=True)
 
 
 @pytest.fixture
-def vault(gov, rewards, guardian, token, Vault):
-    vault = guardian.deploy(Vault, token, gov, rewards, "", "")
-    yield vault
-
-
-@pytest.fixture
-def Vault(pm):
-    Vault = pm(config["dependencies"][0]).Vault
-    yield Vault
+def management(accounts):
+    # dev.ychad.eth
+    yield accounts.at('0x846e211e8ba920B353FB717631C015cf04061Cc9', force=True)
 
 
 @pytest.fixture
@@ -49,29 +38,19 @@ def keeper(accounts):
 
 
 @pytest.fixture
-def strategy(strategist, keeper, vault, Strategy):
-    strategy = strategist.deploy(Strategy, vault)
-    strategy.setKeeper(keeper)
-    yield strategy
+def token():
+    token_address = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+    yield Contract(token_address)
 
 
 @pytest.fixture
-def whale(accounts):
-    # binance7 wallet
-    #acc = accounts.at('0xBE0eB53F46cd790Cd13851d5EFf43D12404d33E8', force=True)
-
-    # binance8 wallet
-    #acc = accounts.at('0xf977814e90da44bfa03b6295a0616a897441acec', force=True)
-
-    # weth whale
-    acc = accounts.at('0xee2826453A4Fd5AfeB7ceffeEF3fFA2320081268', force=True)
-    yield acc
-
-
-@pytest.fixture(scope='session')
-def dev(accounts):
-    # Sam's dev account
-    yield accounts.at('0xC3D6880fD95E06C816cB030fAc45b3ffe3651Cb0', force=True)
+def amount(accounts, token):
+    amount = 10 * 10 ** token.decimals()
+    # In order to get some funds for the token you are about to use,
+    # it impersonate an exchange address to use it's funds.
+    reserve = accounts.at("0x6daB3bCbFb336b29d06B9C793AEF7eaA57888922", force=True)
+    token.transfer(accounts[0], amount, {"from": reserve})
+    yield amount
 
 
 @pytest.fixture
@@ -85,22 +64,41 @@ def dai(interface):
 
 
 @pytest.fixture
-def weth_vault(Vault):
-    yield Vault.at('0x6392e8fa0588CB2DCb7aF557FdC9D10FDe48A325')
+def vault(pm, gov, rewards, guardian, management, token):
+    Vault = pm(config["dependencies"][0]).Vault
+    vault = guardian.deploy(Vault)
+    vault.initialize(token, gov, rewards, "", "", guardian)
+    vault.setDepositLimit(2 ** 256 - 1, {"from": gov})
+    vault.setManagement(management, {"from": gov})
+    yield vault
 
 
 @pytest.fixture
-def dai_vault(Vault):
-    yield Vault.at('0xBFa4D8AA6d8a379aBFe7793399D3DdaCC5bBECBB')
+def strategy(accounts, strategist, keeper, vault, Strategy, gov):
+    strategy = strategist.deploy(Strategy, vault)
+    strategy.setKeeper(keeper)
+    vault.addStrategy(strategy, 9_000, 0, 2 ** 256 - 1, 1_000, {"from": gov})
+    yield strategy
 
 
 @pytest.fixture
-def weth_strategy(Strategy):
-    yield Strategy.at('0x2476eC85e55625Eb658CAFAFe5fdc0FAE2954C85')
+def whale(accounts):
+    # binance7 wallet
+    #acc = accounts.at('0xBE0eB53F46cd790Cd13851d5EFf43D12404d33E8', force=True)
+
+    # binance8 wallet
+    #acc = accounts.at('0xf977814e90da44bfa03b6295a0616a897441acec', force=True)
+
+    # weth whale
+    ww = accounts.at('0x6daB3bCbFb336b29d06B9C793AEF7eaA57888922', force=True)
+    yield ww
 
 
 @pytest.fixture
-def dai_strategy(Strategy):
-    # GenericLevCompFarm
-    yield Strategy.at('0x001F751cdfee02e2F0714831bE2f8384db0F71a2')
+def weth_vault():
+    yield Contract('0xa9fE4601811213c340e850ea305481afF02f5b28')
 
+
+@pytest.fixture
+def dai_vault():
+    yield Contract('0x19D3364A399d251E894aC732651be8B0E4e85001')
