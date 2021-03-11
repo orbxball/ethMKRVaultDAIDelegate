@@ -391,6 +391,6 @@ contract Strategy is BaseStrategy {
         path[1] = address(want);
 
         // approve dex to use dai
-        Uni(dex).swapExactTokensForTokens(_amountIn, 0, path, address(this), now.add(1800));
+        Uni(dex).swapExactTokensForTokens(_amountIn, 0, path, address(this), now);
     }
 }
