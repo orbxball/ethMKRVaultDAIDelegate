@@ -302,15 +302,15 @@ contract Strategy is BaseStrategy {
     }
 
     function prepareMigration(address _newStrategy) internal override {
-        allow(_newStrategy);
+        ManagerLike(cdp_manager).cdpAllow(cdpId, _newStrategy, 1);
         IERC20(yvdai).safeTransfer(_newStrategy, IERC20(yvdai).balanceOf(address(this)));
     }
 
-    function allow(address dst) public onlyAuthorized {
+    function allow(address dst) external onlyAuthorized {
         ManagerLike(cdp_manager).cdpAllow(cdpId, dst, 1);
     }
 
-    function gulp(uint srcCdp) public onlyAuthorized {
+    function gulp(uint srcCdp) external onlyAuthorized {
         ManagerLike(cdp_manager).shift(srcCdp, cdpId);
     }
 
