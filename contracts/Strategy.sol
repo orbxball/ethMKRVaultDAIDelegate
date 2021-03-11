@@ -327,7 +327,7 @@ contract Strategy is BaseStrategy {
     }
 
     function forceRebalance(uint _amount) external onlyAuthorized {
-        _withdrawDai(_amount);
+        if (_amount > 0) _withdrawDai(_amount);
         _freeWETHandWipeDAI(0, IERC20(dai).balanceOf(address(this)));
     }
 
