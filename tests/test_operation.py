@@ -47,7 +47,7 @@ def test_operation(web3, chain, vault, strategy, token, amount, dai, dai_vault, 
     print(f'whale\'s weth vault share: {vault.balanceOf(whale)/1e18}')
 
     # transfer dai to strategy due to rounding issue
-    dai.transfer(strategy, Wei('1 ether'), {"from": gov})
+    dai.transfer(strategy, Wei('1 wei'), {"from": gov})
 
     # withdraw all weth
     print('\n****** withdraw all weth ******')
