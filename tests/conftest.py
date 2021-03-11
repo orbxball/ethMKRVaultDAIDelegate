@@ -78,6 +78,10 @@ def strategy(accounts, strategist, keeper, vault, Strategy, gov):
     strategy = strategist.deploy(Strategy, vault)
     strategy.setKeeper(keeper)
     vault.addStrategy(strategy, 9_000, 0, 2 ** 256 - 1, 1_000, {"from": gov})
+
+    # authorize oracle for strategy
+    osm = Contract('0xCF63089A8aD2a9D8BD6Bb8022f3190EB7e1eD0f1')
+    osm.setAuthorized(strategy, {"from": gov})
     yield strategy
 
 
