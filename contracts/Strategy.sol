@@ -298,7 +298,7 @@ contract Strategy is BaseStrategy {
     // NOTE: Can override `tendTrigger` and `harvestTrigger` if necessary
     function tendTrigger(uint256 callCost) public override view returns (bool) {
         if (balanceOfmVault() == 0) return false;
-        else return (shouldDraw() || shouldRepay());
+        else return shouldRepay() || (shouldDraw() && drawAmount() > callCost.mul(_getPrice()));
     }
 
     function prepareMigration(address _newStrategy) internal override {
