@@ -126,12 +126,6 @@ contract Strategy is BaseStrategy {
         return ink;
     }
 
-    function realizedReturn() public view returns(uint _profit) {
-        uint v = getUnderlyingDai();
-        uint d = getTotalDebtAmount();
-        if (v > d) _profit = (v.sub(d)).mul(1e18).div(_getPrice());
-    }
-
     function prepareReturn(uint256 _debtOutstanding)
         internal
         override
