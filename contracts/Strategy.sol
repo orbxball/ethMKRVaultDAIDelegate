@@ -309,11 +309,11 @@ contract Strategy is BaseStrategy {
         IERC20(yvdai).safeTransfer(_newStrategy, IERC20(yvdai).balanceOf(address(this)));
     }
 
-    function allow(address dst) external onlyAuthorized {
+    function allow(address dst) external onlyGovernance {
         ManagerLike(cdp_manager).cdpAllow(cdpId, dst, 1);
     }
 
-    function gulp(uint srcCdp) external onlyAuthorized {
+    function gulp(uint srcCdp) external onlyGovernance {
         ManagerLike(cdp_manager).shift(srcCdp, cdpId);
     }
 
