@@ -17,6 +17,7 @@ import {
 import "../interfaces/maker/Maker.sol";
 import "../interfaces/yearn/yVault.sol";
 import "../interfaces/uniswap/Uni.sol";
+import "../interfaces/chainlink/Chainlink.sol";
 
 
 contract Strategy is BaseStrategy {
@@ -37,6 +38,7 @@ contract Strategy is BaseStrategy {
     address public auto_line = address(0xC7Bdd1F2B16447dcf3dE045C4a039A60EC2f0ba3);
 
     address public eth_price_oracle = address(0xCF63089A8aD2a9D8BD6Bb8022f3190EB7e1eD0f1);
+    address public eth_usd_chainlink = address(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419); // eth-usd.data.eth
     address constant public yvdai = address(0x19D3364A399d251E894aC732651be8B0E4e85001);
 
     address constant public uniswap = address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
@@ -160,6 +162,7 @@ contract Strategy is BaseStrategy {
         (uint _read,) = OSMedianizer(eth_price_oracle).read();
         (uint _foresight,) = OSMedianizer(eth_price_oracle).foresight();
         p = _foresight < _read ? _foresight : _read;
+        if (p == 0) return uint(EACAggregatorProxy(eth_usd_chainlink).latestAnswer()).mul(1e10);
     }
 
     function _adjustDrawAmount(uint amount) internal view returns (uint _available) {
