@@ -4,7 +4,7 @@
 #           - change in loading (from low to high and high to low)
 #           - strategy operation at different loading levels (anticipated and "extreme")
 from brownie import Wei, reverts
-from useful_methods import genericStateOfVault, genericStateOfStrat
+from useful_methods import state_of_vault, state_of_strategy
 import brownie
 
 def test_operation(web3, chain, vault, strategy, token, amount, dai, dai_vault, whale, gov, guardian, strategist):
@@ -24,20 +24,20 @@ def test_operation(web3, chain, vault, strategy, token, amount, dai, dai_vault, 
 
     print("\n****** Initial Status ******")
     print("\n****** Weth ******")
-    genericStateOfStrat(strategy, token, vault)
-    genericStateOfVault(vault, token)
+    state_of_strategy(strategy, token, vault)
+    state_of_vault(vault, token)
     print("\n****** Dai ******")
-    genericStateOfVault(dai_vault, dai)
+    state_of_vault(dai_vault, dai)
 
 
     print("\n****** Harvest Weth ******")
     strategy.harvest({'from': strategist})
 
     print("\n****** Weth ******")
-    genericStateOfStrat(strategy, token, vault)
-    genericStateOfVault(vault, token)
+    state_of_strategy(strategy, token, vault)
+    state_of_vault(vault, token)
     print("\n****** Dai ******")
-    genericStateOfVault(dai_vault, dai)
+    state_of_vault(dai_vault, dai)
 
     # withdraw weth
     print('\n****** withdraw weth ******')
