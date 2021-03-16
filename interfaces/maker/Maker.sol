@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity >0.5.17;
+pragma experimental ABIEncoderV2;
 
 interface GemLike {
     function approve(address, uint256) external;
@@ -78,22 +79,30 @@ interface ManagerLike {
 }
 
 interface VatLike {
+
+    struct Ilk {
+        uint256 Art;   // Total Normalised Debt     [wad]
+        uint256 rate;  // Accumulated Rates         [ray]
+        uint256 spot;  // Price with Safety Margin  [ray]
+        uint256 line;  // Debt Ceiling              [rad]
+        uint256 dust;  // Urn Debt Floor            [rad]
+    }
+
+    struct Urn {
+        uint256 ink;   // Locked Collateral  [wad]
+        uint256 art;   // Normalised Debt    [wad]
+    }
+
     function can(address, address) external view returns (uint256);
 
     function ilks(bytes32)
         external
         view
-        returns (
-            uint256,
-            uint256,
-            uint256,
-            uint256,
-            uint256
-        );
+        returns (Ilk memory);
 
     function dai(address) external view returns (uint256);
 
-    function urns(bytes32, address) external view returns (uint256, uint256);
+    function urns(bytes32, address) external view returns (Urn memory);
 
     function frob(
         bytes32,
@@ -172,11 +181,28 @@ interface PotLike {
 }
 
 interface SpotLike {
-    function ilks(bytes32) external view returns (address, uint256);
+    struct Ilk {
+        address pip;
+        uint256 mat;
+    }
+
+    function ilks(bytes32) external view returns (Ilk memory);
 }
 
 interface OSMedianizer {
     function read() external view returns (uint256, bool);
 
     function foresight() external view returns (uint256, bool);
+}
+
+interface OracleSecurityModule {
+    function peek() external view returns (uint256, bool);
+
+    function peep() external view returns (uint256, bool);
+
+    function users(address) external view returns (bool);
+
+    function bud(address) external view returns (bool);
+
+    function oracle() external view returns (address);
 }

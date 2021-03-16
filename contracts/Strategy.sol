@@ -120,10 +120,8 @@ contract Strategy is BaseStrategy {
     }
 
     function balanceOfmVault() public view returns (uint) {
-        uint ink;
         address urnHandler = ManagerLike(cdp_manager).urns(cdpId);
-        (ink,) = VatLike(vat).urns(ilk, urnHandler);
-        return ink;
+        return VatLike(vat).urns(ilk, urnHandler).ink;
     }
 
     function prepareReturn(uint256 _debtOutstanding)
@@ -285,8 +283,8 @@ contract Strategy is BaseStrategy {
         uint _dai,
         address urn
     ) internal view returns (int dart) {
-        (, uint rate,,,) = VatLike(vat).ilks(ilk);
-        (, uint art) = VatLike(vat).urns(ilk, urn);
+        uint rate = VatLike(vat).ilks(ilk).rate;
+        uint art = VatLike(vat).urns(ilk, urn).art;
 
         dart = toInt(_dai / rate);
         dart = uint(dart) <= art ? - dart : - toInt(art);
@@ -329,11 +327,9 @@ contract Strategy is BaseStrategy {
     }
 
     function getTotalDebtAmount() public view returns (uint) {
-        uint art;
-        uint rate;
         address urnHandler = ManagerLike(cdp_manager).urns(cdpId);
-        (,art) = VatLike(vat).urns(ilk, urnHandler);
-        (,rate,,,) = VatLike(vat).ilks(ilk);
+        uint art = VatLike(vat).urns(ilk, urnHandler).art;
+        uint rate = VatLike(vat).ilks(ilk).rate;
         return art.mul(rate).div(1e27);
     }
 
@@ -346,8 +342,8 @@ contract Strategy is BaseStrategy {
             return uint(-1);
         }
 
-        (,,spot,,) = VatLike(vat).ilks(ilk);
-        (,liquidationRatio) = SpotLike(mcd_spot).ilks(ilk);
+        spot = VatLike(vat).ilks(ilk).spot;
+        liquidationRatio = SpotLike(mcd_spot).ilks(ilk).mat;
         uint delayedCPrice = spot.mul(liquidationRatio).div(1e27); // ray
 
         uint _balance = balanceOfmVault();
