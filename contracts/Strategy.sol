@@ -197,7 +197,7 @@ contract Strategy is BaseStrategy {
     }
 
     function _getDrawDart(address urn, uint wad) internal returns (int dart) {
-        uint rate = JugLike(jug).drip(ilk);
+        uint rate = VatLike(vat).ilks(ilk).rate;
         uint _dai = VatLike(vat).dai(urn);
 
         // If there was already enough DAI in the vat balance, just exits it without adding more debt
