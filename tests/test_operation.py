@@ -4,7 +4,7 @@
 #           - change in loading (from low to high and high to low)
 #           - strategy operation at different loading levels (anticipated and "extreme")
 from brownie import Wei, reverts
-from useful_methods import state_of_vault, state_of_strategy
+from useful_methods import state_of_vault, state_of_strategy, harvest_live_vault
 import brownie
 
 def test_operation(web3, chain, vault, strategy, token, amount, dai, dai_vault, whale, gov, guardian, strategist):
@@ -22,41 +22,52 @@ def test_operation(web3, chain, vault, strategy, token, amount, dai, dai_vault, 
     print(f'whale deposit done with {amount/1e18} weth\n')
 
 
-    print("\n****** Initial Status ******")
-    print("\n****** Weth ******")
+    print(f"\n****** Initial Status ******")
+    print(f"\n****** {token.name()} ******")
     state_of_strategy(strategy, token, vault)
     state_of_vault(vault, token)
     print("\n****** Dai ******")
     state_of_vault(dai_vault, dai)
 
-
-    print("\n****** Harvest Weth ******")
+    print(f"\n****** Harvest {token.name()} ******")
     strategy.harvest({'from': strategist})
 
-    print("\n****** Weth ******")
+    print(f"\n****** {token.name()} ******")
     state_of_strategy(strategy, token, vault)
     state_of_vault(vault, token)
-    print("\n****** Dai ******")
+    print(f"\n****** Dai ******")
     state_of_vault(dai_vault, dai)
 
-    # withdraw weth
-    print('\n****** withdraw weth ******')
-    print(f'whale\'s weth vault share: {vault.balanceOf(whale)/1e18}')
-    vault.withdraw(Wei('1 ether'), {"from": whale})
-    print(f'withdraw 1 ether done')
-    print(f'whale\'s weth vault share: {vault.balanceOf(whale)/1e18}')
+    # sleep & realize profit
+    print(f"\n****** sleep + realize profit ******")
+    chain.sleep(86400)
+    harvest_live_vault(dai_vault)
 
-    # transfer dai to strategy due to rounding issue
-    dai.transfer(strategy, Wei('1 wei'), {"from": gov})
+    # withdraw
+    scale = 10 ** token.decimals()
+    print(f"\n****** withdraw {token.name()} ******")
+    print(f"whale's {token.name()} vault share: {vault.balanceOf(whale)/scale}")
+    vault.withdraw(amount / 2, {"from": whale})
+    print(f"withdraw {amount/2/scale} {token.name()} done")
+    print(f"whale's {token.name()} vault share: {vault.balanceOf(whale)/scale}")
 
-    # withdraw all weth
-    print('\n****** withdraw all weth ******')
-    print(f'whale\'s weth vault share: {vault.balanceOf(whale)/1e18}')
+    print(f"\n****** {token.name()} ******")
+    state_of_strategy(strategy, token, vault)
+    state_of_vault(vault, token)
+    print(f"\n****** Dai ******")
+    state_of_vault(dai_vault, dai)
+
+    # # transfer dai to strategy due to rounding issue
+    # dai.transfer(strategy, Wei('1 wei'), {"from": gov})
+
+    # withdraw all
+    print(f"\n****** withdraw all {token.name()} ******")
+    print(f"whale's {token.name()} vault share: {vault.balanceOf(whale)/scale}")
     vault.withdraw({"from": whale})
-    print(f'withdraw all weth')
-    print(f'whale\'s weth vault share: {vault.balanceOf(whale)/1e18}')
+    print(f"withdraw all {token.name()}")
+    print(f"whale's {token.name()} vault share: {vault.balanceOf(whale)/scale}")
 
     # try call tend
-    print('\ncall tend')
+    print(f"\ncall tend")
     strategy.tend()
-    print('tend done')
+    print(f"tend done")
