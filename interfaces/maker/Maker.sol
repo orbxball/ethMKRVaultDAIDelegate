@@ -206,3 +206,7 @@ interface OracleSecurityModule {
 
     function oracle() external view returns (address);
 }
+
+interface DssAutoLine {
+    function exec(bytes32 _ilk) external returns (uint256);
+}

@@ -24,6 +24,7 @@ contract Strategy is BaseStrategy {
     using Address for address;
     using SafeMath for uint256;
 
+    // want = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2)
     address constant public weth = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
     address constant public dai = address(0x6B175474E89094C44Da98b954EedeAC495271d0F);
 
@@ -33,6 +34,7 @@ contract Strategy is BaseStrategy {
     address public mcd_join_dai = address(0x9759A6Ac90977b93B58547b4A71c78317f391A28);
     address public mcd_spot = address(0x65C79fcB50Ca1594B025960e539eD7A9a6D434A3);
     address public jug = address(0x19c0976f590D67707E62397C87829d896Dc0f1F1);
+    address public auto_line = address(0xC7Bdd1F2B16447dcf3dE045C4a039A60EC2f0ba3);
 
     address public eth_price_oracle = address(0xCF63089A8aD2a9D8BD6Bb8022f3190EB7e1eD0f1);
     address constant public yvdai = address(0x19D3364A399d251E894aC732651be8B0E4e85001);
@@ -149,6 +151,9 @@ contract Strategy is BaseStrategy {
     }
 
     function adjustPosition(uint256 _debtOutstanding) internal override {
+        JugLike(jug).drip(ilk);  // update stability fee rate accumulator
+        DssAutoLine(auto_line).exec(ilk);  // bump available debt ceiling
+
         _deposit();
         if (shouldDraw()) draw();
         else if (shouldRepay()) repay();
@@ -156,16 +161,15 @@ contract Strategy is BaseStrategy {
 
     function _deposit() internal {
         uint _token = want.balanceOf(address(this));
-        if (_token > 0) {
-            uint p = _getPrice();
-            uint _draw = _token.mul(p).mul(DENOMINATOR).div(c).div(1e18);
-            // approve adapter to use token amount
-            if (_checkDebtCeiling(_draw)) {
-                _lockWETHAndDrawDAI(_token, _draw);
-                // approve yvdai use DAI
-                yVault(yvdai).deposit();
-            }
-        }
+        if (_token == 0) return;
+
+        uint p = _getPrice();
+        uint _draw = _token.mul(p).mul(DENOMINATOR).div(c).div(1e18);
+        _draw = _adjustDrawAmount(_draw);
+        if (_draw == 0) return;
+
+        _lockWETHAndDrawDAI(_token, _draw);
+        yVault(yvdai).deposit();
     }
 
     function _getPrice() internal view returns (uint p) {
@@ -174,11 +178,14 @@ contract Strategy is BaseStrategy {
         p = _foresight < _read ? _foresight : _read;
     }
 
-    function _checkDebtCeiling(uint _amt) internal view returns (bool) {
-        (,,,uint _line,) = VatLike(vat).ilks(ilk);
-        uint _debt = getTotalDebtAmount().add(_amt);
-        if (_line < _debt.mul(1e27)) { return false; }
-        return true;
+    function _adjustDrawAmount(uint amount) internal view returns (uint _available) {
+        // adjust max amount of dai available to draw
+        VatLike.Ilk memory _ilk = VatLike(vat).ilks(ilk);
+        uint _debt = _ilk.Art.mul(_ilk.rate).add(1e27);  // [rad]
+        if (_debt > _ilk.line) return 0;  // avoid Vat/ceiling-exceeded
+        _available = _ilk.line.sub(_debt).div(1e27);
+        if (_available.mul(1e27) < _ilk.dust) return 0;  // avoid Vat/dust
+        return _available < amount ? _available : amount;
     }
 
     function _lockWETHAndDrawDAI(uint wad, uint wadD) internal {
@@ -211,6 +218,7 @@ contract Strategy is BaseStrategy {
     }
 
     function drawAmount() public view returns (uint) {
+        // amount to draw to reach target ratio not accounting for debt ceiling
         uint _safe = c.mul(1e2);
         uint _current = getmVaultRatio(0);
         if (_current > DENOMINATOR.mul(c_safe).mul(1e2)) {
@@ -225,7 +233,7 @@ contract Strategy is BaseStrategy {
     }
 
     function draw() internal {
-        uint _drawD = drawAmount();
+        uint _drawD = _adjustDrawAmount(drawAmount());
         if (_drawD > 0) {
             _lockWETHAndDrawDAI(0, _drawD);
             yVault(yvdai).deposit();
@@ -293,7 +301,7 @@ contract Strategy is BaseStrategy {
     // NOTE: Can override `tendTrigger` and `harvestTrigger` if necessary
     function tendTrigger(uint256 callCost) public override view returns (bool) {
         if (balanceOfmVault() == 0) return false;
-        else return shouldRepay() || (shouldDraw() && drawAmount() > callCost.mul(_getPrice()).mul(profitFactor));
+        else return shouldRepay() || (shouldDraw() && _adjustDrawAmount(drawAmount()) > callCost.mul(_getPrice()).mul(profitFactor));
     }
 
     function prepareMigration(address _newStrategy) internal override {
