@@ -44,11 +44,11 @@ def token():
 
 
 @pytest.fixture
-def amount(accounts, token):
-    amount = 10 * 10 ** token.decimals()
+def amount(accounts, token, whale):
+    amount = 1000 * 10 ** token.decimals()
     # In order to get some funds for the token you are about to use,
     # it impersonate an exchange address to use it's funds.
-    reserve = accounts.at("0x6daB3bCbFb336b29d06B9C793AEF7eaA57888922", force=True)
+    reserve = whale
     token.transfer(accounts[0], amount, {"from": reserve})
     yield amount
 
@@ -79,23 +79,23 @@ def strategy(accounts, strategist, keeper, vault, Strategy, gov):
     strategy.setKeeper(keeper)
     vault.addStrategy(strategy, 9_000, 0, 2 ** 256 - 1, 1_000, {"from": gov})
 
-    # authorize oracle for strategy
-    osm = Contract('0xCF63089A8aD2a9D8BD6Bb8022f3190EB7e1eD0f1')
-    osm.setAuthorized(strategy, {"from": gov})
+    # uncomment to use maker oracle
+    # osm = Contract('0xCF63089A8aD2a9D8BD6Bb8022f3190EB7e1eD0f1')
+    # osm.setAuthorized(strategy, {"from": gov})
     yield strategy
 
 
 @pytest.fixture
 def whale(accounts):
     # binance7 wallet
-    #acc = accounts.at('0xBE0eB53F46cd790Cd13851d5EFf43D12404d33E8', force=True)
+    # acc = accounts.at('0xBE0eB53F46cd790Cd13851d5EFf43D12404d33E8', force=True)
 
     # binance8 wallet
     #acc = accounts.at('0xf977814e90da44bfa03b6295a0616a897441acec', force=True)
 
-    # weth whale
-    ww = accounts.at('0x6daB3bCbFb336b29d06B9C793AEF7eaA57888922', force=True)
-    yield ww
+    # dydx
+    acc = accounts.at('0x1E0447b19BB6EcFdAe1e4AE1694b0C3659614e4e', force=True)
+    yield acc
 
 
 @pytest.fixture
