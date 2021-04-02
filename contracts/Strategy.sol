@@ -121,15 +121,14 @@ contract Strategy is BaseStrategy {
             uint256 _debtPayment
         )
     {
-        _profit = want.balanceOf(address(this));
+        uint before = want.balanceOf(address(this));
         uint v = getUnderlyingDai();
         uint d = getTotalDebtAmount();
         if (v > d) {
             _withdrawDai(v.sub(d));
             _swap(IERC20(dai).balanceOf(address(this)));
-            
-            _profit = want.balanceOf(address(this));
         }
+        _profit = want.balanceOf(address(this)).sub(before);
 
         if (_debtOutstanding > 0) {
             (_debtPayment, _loss) = liquidatePosition(_debtOutstanding);
