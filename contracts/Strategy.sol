@@ -157,9 +157,9 @@ contract Strategy is BaseStrategy {
         uint p = _getPrice();
         uint _draw = _token.mul(p).mul(DENOMINATOR).div(c).div(1e18);
         _draw = _adjustDrawAmount(_draw);
+        _lockWETHAndDrawDAI(_token, _draw);
         if (_draw == 0) return;
 
-        _lockWETHAndDrawDAI(_token, _draw);
         yVault(yvdai).deposit();
     }
 
