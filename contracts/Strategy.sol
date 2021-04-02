@@ -130,9 +130,15 @@ contract Strategy is BaseStrategy {
         }
         _profit = want.balanceOf(address(this)).sub(before);
 
+        uint _total = estimatedTotalAssets();
+        uint _debt = vault.strategies(address(this)).totalDebt;
+        if(_total < _debt) _loss = _debt - _total;
+
+        uint _losss;
         if (_debtOutstanding > 0) {
-            (_debtPayment, _loss) = liquidatePosition(_debtOutstanding);
+            (_debtPayment, _losss) = liquidatePosition(_debtOutstanding);
         }
+        _loss = _loss.add(_losss);
     }
 
     function adjustPosition(uint256 _debtOutstanding) internal override {
