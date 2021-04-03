@@ -184,7 +184,7 @@ contract Strategy is BaseStrategy {
         if (wadD > 0) { DaiJoinLike(mcd_join_dai).exit(address(this), wadD); }
     }
 
-    function _getDrawDart(address urn, uint wad) internal returns (int dart) {
+    function _getDrawDart(address urn, uint wad) internal view returns (int dart) {
         uint rate = VatLike(vat).ilks(ilk).rate;
         uint _dai = VatLike(vat).dai(urn);
 
