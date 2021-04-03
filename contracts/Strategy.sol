@@ -90,10 +90,6 @@ contract Strategy is BaseStrategy {
         buffer = _buffer;
     }
 
-    function setOracle(address _oracle) external onlyGovernance {
-        eth_price_oracle = _oracle;
-    }
-
     function switchDex(bool isUniswap) external onlyAuthorized {
         if (isUniswap) dex = uniswap;
         else dex = sushiswap;
