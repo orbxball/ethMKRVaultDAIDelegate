@@ -138,6 +138,7 @@ contract Strategy is BaseStrategy {
     }
 
     function adjustPosition(uint256 _debtOutstanding) internal override {
+        if (emergencyExit || _debtOutstanding > estimatedTotalAssets()) return;
         JugLike(jug).drip(ilk);  // update stability fee rate accumulator
         DssAutoLine(auto_line).exec(ilk);  // bump available debt ceiling
 
