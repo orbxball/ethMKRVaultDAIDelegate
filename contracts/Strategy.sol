@@ -108,6 +108,10 @@ contract Strategy is BaseStrategy {
         return VatLike(vat).urns(ilk, urnHandler).ink;
     }
 
+    function delegatedAssets() external view override returns (uint256) {
+        return estimatedTotalAssets().mul(DENOMINATOR).div(getmVaultRatio(0));
+    }
+
     function prepareReturn(uint256 _debtOutstanding)
         internal
         override
@@ -155,8 +159,8 @@ contract Strategy is BaseStrategy {
         uint _draw = _token.mul(p).mul(DENOMINATOR).div(c).div(1e18);
         _draw = _adjustDrawAmount(_draw);
         _lockWETHAndDrawDAI(_token, _draw);
-        if (_draw == 0) return;
 
+        if (_draw == 0) return;
         yVault(yvdai).deposit();
     }
 
