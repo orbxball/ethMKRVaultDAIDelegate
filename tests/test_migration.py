@@ -11,9 +11,9 @@ def new_strategy(accounts, strategist, keeper, vault, Strategy, gov):
 
 
 def test_vault_migration(gov, vault, strategy, new_strategy):
-   print(f'strategy: {strategy}, vault: {strategy.vault()}')
-   print(f'new_strategy: {new_strategy}, vault: {new_strategy.vault()}')
-   vault.migrateStrategy(strategy, new_strategy, {"from": gov})
+    print(f'strategy: {strategy}, vault: {strategy.vault()}')
+    print(f'new_strategy: {new_strategy}, vault: {new_strategy.vault()}')
+    vault.migrateStrategy(strategy, new_strategy, {"from": gov})
 
 
 def test_migration_through_strategy(gov, vault, strategy, new_strategy):
