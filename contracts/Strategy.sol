@@ -26,8 +26,8 @@ contract Strategy is BaseStrategy {
     using SafeMath for uint256;
 
     // want = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2)
-    address constant public weth = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
-    address constant public dai = address(0x6B175474E89094C44Da98b954EedeAC495271d0F);
+    address public constant weth = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
+    address public constant dai = address(0x6B175474E89094C44Da98b954EedeAC495271d0F);
 
     address public constant cdp_manager = address(0x5ef30b9986345249bc32d8928B7ee64DE9435E39);
     address public constant vat = address(0x35D1b3F3D7966A1DFe207aa4514C12a259A0492B);
@@ -39,13 +39,13 @@ contract Strategy is BaseStrategy {
 
     address public constant eth_price_oracle = address(0xCF63089A8aD2a9D8BD6Bb8022f3190EB7e1eD0f1);
     address public constant eth_usd_chainlink = address(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419); // eth-usd.data.eth
-    address constant public yvdai = address(0x19D3364A399d251E894aC732651be8B0E4e85001);
+    address public constant yvdai = address(0x19D3364A399d251E894aC732651be8B0E4e85001);
 
-    address constant public uniswap = address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
-    address constant public sushiswap = address(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
+    address public constant uniswap = address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+    address public constant sushiswap = address(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
 
-    uint constant public DENOMINATOR = 10000;
-    bytes32 constant public ilk = "ETH-A";
+    uint public constant DENOMINATOR = 10000;
+    bytes32 public constant ilk = "ETH-A";
 
     uint public c;
     uint public c_safe;
