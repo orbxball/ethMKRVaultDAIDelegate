@@ -29,16 +29,16 @@ contract Strategy is BaseStrategy {
     address constant public weth = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
     address constant public dai = address(0x6B175474E89094C44Da98b954EedeAC495271d0F);
 
-    address public cdp_manager = address(0x5ef30b9986345249bc32d8928B7ee64DE9435E39);
-    address public vat = address(0x35D1b3F3D7966A1DFe207aa4514C12a259A0492B);
-    address public mcd_join_eth_a = address(0x2F0b23f53734252Bda2277357e97e1517d6B042A);
-    address public mcd_join_dai = address(0x9759A6Ac90977b93B58547b4A71c78317f391A28);
-    address public mcd_spot = address(0x65C79fcB50Ca1594B025960e539eD7A9a6D434A3);
-    address public jug = address(0x19c0976f590D67707E62397C87829d896Dc0f1F1);
-    address public auto_line = address(0xC7Bdd1F2B16447dcf3dE045C4a039A60EC2f0ba3);
+    address public constant cdp_manager = address(0x5ef30b9986345249bc32d8928B7ee64DE9435E39);
+    address public constant vat = address(0x35D1b3F3D7966A1DFe207aa4514C12a259A0492B);
+    address public constant mcd_join_eth_a = address(0x2F0b23f53734252Bda2277357e97e1517d6B042A);
+    address public constant mcd_join_dai = address(0x9759A6Ac90977b93B58547b4A71c78317f391A28);
+    address public constant mcd_spot = address(0x65C79fcB50Ca1594B025960e539eD7A9a6D434A3);
+    address public constant jug = address(0x19c0976f590D67707E62397C87829d896Dc0f1F1);
+    address public constant auto_line = address(0xC7Bdd1F2B16447dcf3dE045C4a039A60EC2f0ba3);
 
-    address public eth_price_oracle = address(0xCF63089A8aD2a9D8BD6Bb8022f3190EB7e1eD0f1);
-    address public eth_usd_chainlink = address(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419); // eth-usd.data.eth
+    address public constant eth_price_oracle = address(0xCF63089A8aD2a9D8BD6Bb8022f3190EB7e1eD0f1);
+    address public constant eth_usd_chainlink = address(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419); // eth-usd.data.eth
     address constant public yvdai = address(0x19D3364A399d251E894aC732651be8B0E4e85001);
 
     address constant public uniswap = address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
