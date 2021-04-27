@@ -66,12 +66,21 @@ contract Strategy is BaseStrategy {
     }
 
     function _approveAll() internal {
+        want.approve(mcd_join_eth_a, 0);
         want.approve(mcd_join_eth_a, uint(-1));
+        IERC20(dai).approve(mcd_join_dai, 0);
         IERC20(dai).approve(mcd_join_dai, uint(-1));
         VatLike(vat).hope(mcd_join_dai);
+        IERC20(dai).approve(yvdai, 0);
         IERC20(dai).approve(yvdai, uint(-1));
+        IERC20(dai).approve(uniswap, 0);
         IERC20(dai).approve(uniswap, uint(-1));
+        IERC20(dai).approve(sushiswap, 0);
         IERC20(dai).approve(sushiswap, uint(-1));
+    }
+
+    function approveAll() external onlyAuthorized {
+        _approveAll();
     }
 
     function name() external view override returns (string memory) {
