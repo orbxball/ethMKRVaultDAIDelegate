@@ -136,7 +136,10 @@ contract Strategy is BaseStrategy {
 
         uint _total = estimatedTotalAssets();
         uint _debt = vault.strategies(address(this)).totalDebt;
-        if(_total < _debt) _loss = _debt - _total;
+        if(_total < _debt) {
+            _loss = _debt - _total;
+            _profit = 0;
+        }
 
         uint _losss;
         if (_debtOutstanding > 0) {
