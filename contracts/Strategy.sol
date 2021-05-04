@@ -272,9 +272,9 @@ contract Strategy is BaseStrategy {
         returns (uint256 _liquidatedAmount, uint256 _loss)
     {
         if (getTotalDebtAmount() != 0 && 
-            getmVaultRatio(_amountNeeded) < c_safe.mul(1e2)) {
+            getmVaultRatio(_amountNeeded) < c.mul(1e2)) {
             uint p = _getPrice();
-            _withdrawDai(_amountNeeded.mul(p).div(1e18));
+            _withdrawDai(_amountNeeded.mul(p).mul(DENOMINATOR).div(c).div(1e18));
         }
         
         _freeWETHandWipeDAI(_amountNeeded, IERC20(dai).balanceOf(address(this)));
