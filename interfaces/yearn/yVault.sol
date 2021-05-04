@@ -11,5 +11,7 @@ interface yVault {
 
     function withdraw(uint256) external;
 
+    function withdraw(uint256, address, uint256) external;
+
     function pricePerShare() external view returns (uint256);
 }

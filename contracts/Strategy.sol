@@ -49,6 +49,7 @@ contract Strategy is BaseStrategy {
 
     uint public c;
     uint public buffer;
+    uint public slip;
     uint public cdpId;
     address public dex;
 
@@ -59,6 +60,7 @@ contract Strategy is BaseStrategy {
         debtThreshold = 1e20;
         c = 20000;
         buffer = 1000;
+        slip = 10000;
         dex = sushiswap;
         cdpId = ManagerLike(cdp_manager).open(ilk, address(this));
         _approveAll();
@@ -92,6 +94,10 @@ contract Strategy is BaseStrategy {
 
     function setBuffer(uint _buffer) external onlyAuthorized {
         buffer = _buffer;
+    }
+
+    function setSlip(uint _slip) external onlyAuthorized {
+        slip = _slip;
     }
 
     function switchDex(bool isUniswap) external onlyAuthorized {
@@ -381,7 +387,7 @@ contract Strategy is BaseStrategy {
         }
 
         uint _before = IERC20(dai).balanceOf(address(this));
-        yVault(yvdai).withdraw(_shares);
+        yVault(yvdai).withdraw(_shares, address(this), slip);
         uint _after = IERC20(dai).balanceOf(address(this));
         return _after.sub(_before);
     }
