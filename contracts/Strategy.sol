@@ -48,7 +48,6 @@ contract Strategy is BaseStrategy {
     bytes32 public constant ilk = "ETH-A";
 
     uint public c;
-    uint public c_safe;
     uint public buffer;
     uint public cdpId;
     address public dex;
@@ -58,7 +57,6 @@ contract Strategy is BaseStrategy {
         maxReportDelay = 3 days;
         profitFactor = 1000;
         c = 20000;
-        c_safe = 40000;
         buffer = 500;
         dex = sushiswap;
         cdpId = ManagerLike(cdp_manager).open(ilk, address(this));
@@ -89,10 +87,6 @@ contract Strategy is BaseStrategy {
 
     function setBorrowCollateralizationRatio(uint _c) external onlyAuthorized {
         c = _c;
-    }
-
-    function setWithdrawCollateralizationRatio(uint _c_safe) external onlyAuthorized {
-        c_safe = _c_safe;
     }
 
     function setBuffer(uint _buffer) external onlyAuthorized {
