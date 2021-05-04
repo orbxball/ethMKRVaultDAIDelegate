@@ -223,8 +223,8 @@ contract Strategy is BaseStrategy {
         // amount to draw to reach target ratio not accounting for debt ceiling
         uint _safe = c.mul(1e2);
         uint _current = getmVaultRatio(0);
-        if (_current > DENOMINATOR.mul(c_safe).mul(1e2)) {
-            _current = DENOMINATOR.mul(c_safe).mul(1e2);
+        if (_current > DENOMINATOR.mul(c).mul(1e2)) {
+            _current = DENOMINATOR.mul(c).mul(1e2);
         }
         if (_current > _safe) {
             uint d = getTotalDebtAmount();
