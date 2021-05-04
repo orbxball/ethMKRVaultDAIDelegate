@@ -210,7 +210,7 @@ contract Strategy is BaseStrategy {
 
     function shouldDraw() public view returns (bool) {
         // buffer to avoid deposit/rebalance loops
-        return (getmVaultRatio(0) > c.mul(1e2).mul(DENOMINATOR).div((DENOMINATOR.sub(buffer))));
+        return (getmVaultRatio(0) > (c.add(buffer)).mul(1e2));
     }
 
     function drawAmount() public view returns (uint) {
@@ -238,7 +238,7 @@ contract Strategy is BaseStrategy {
 
     function shouldRepay() public view returns (bool) {
         // buffer to avoid deposit/rebalance loops
-        return (getmVaultRatio(0) < c.mul(1e2).mul(DENOMINATOR).div((DENOMINATOR.add(buffer))));
+        return (getmVaultRatio(0) < (c.sub(buffer/2)).mul(1e2));
     }
     
     function repayAmount() public view returns (uint) {
