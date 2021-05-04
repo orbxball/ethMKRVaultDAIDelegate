@@ -53,11 +53,12 @@ contract Strategy is BaseStrategy {
     address public dex;
 
     constructor(address _vault) public BaseStrategy(_vault) {
-        minReportDelay = 1 days;
-        maxReportDelay = 3 days;
+        minReportDelay = 12 hours;
+        maxReportDelay = 2 days;
         profitFactor = 1000;
+        debtThreshold = 1e20;
         c = 20000;
-        buffer = 500;
+        buffer = 1000;
         dex = sushiswap;
         cdpId = ManagerLike(cdp_manager).open(ilk, address(this));
         _approveAll();
