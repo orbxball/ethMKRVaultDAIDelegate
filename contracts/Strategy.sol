@@ -279,10 +279,16 @@ contract Strategy is BaseStrategy {
             getmVaultRatio(_amountNeeded) < c.mul(1e2)) {
             uint p = _getPrice();
             _withdrawDai(_amountNeeded.mul(p).mul(DENOMINATOR).div(c).div(1e18));
+            _freeWETHandWipeDAI(0, IERC20(dai).balanceOf(address(this)));
         }
         
-        _freeWETHandWipeDAI(_amountNeeded, IERC20(dai).balanceOf(address(this)));
-        _liquidatedAmount = _amountNeeded;
+        if (getmVaultRatio(_amountNeeded) <= SpotLike(mcd_spot).ilks(ilk).mat.div(1e21)) {
+            return (0, _amountNeeded);
+        }
+        else {
+            _freeWETHandWipeDAI(_amountNeeded, 0);
+            _liquidatedAmount = _amountNeeded;
+        }
     }
 
     function _freeWETHandWipeDAI(uint wad, uint wadD) internal {
