@@ -58,8 +58,8 @@ contract Strategy is BaseStrategy {
         maxReportDelay = 2 days;
         profitFactor = 1000;
         debtThreshold = 1e20;
-        c = 20000;
-        buffer = 1000;
+        c = 21000;
+        buffer = 2000;
         slip = 10000;
         dex = sushiswap;
         cdpId = ManagerLike(cdp_manager).open(ilk, address(this));
@@ -119,7 +119,7 @@ contract Strategy is BaseStrategy {
     }
 
     function delegatedAssets() external view override returns (uint256) {
-        return estimatedTotalAssets().mul(DENOMINATOR).div(getmVaultRatio(0));
+        return estimatedTotalAssets().mul(DENOMINATOR).mul(1e2).div(getmVaultRatio(0));
     }
 
     function prepareReturn(uint256 _debtOutstanding)
@@ -138,7 +138,8 @@ contract Strategy is BaseStrategy {
             _withdrawDai(v.sub(d));
             _swap(IERC20(dai).balanceOf(address(this)));
         }
-        _profit = want.balanceOf(address(this)).sub(before);
+        uint nowBal = want.balanceOf(address(this));
+        _profit = nowBal.sub(before);
 
         uint _total = estimatedTotalAssets();
         uint _debt = vault.strategies(address(this)).totalDebt;
@@ -147,11 +148,34 @@ contract Strategy is BaseStrategy {
             _profit = 0;
         }
 
+        if (_debt < _total) {
+            uint256 tempProfit = _total.sub(_debt);
+            if (tempProfit > _profit) {
+                _profit = tempProfit;
+            }
+            if (_profit > nowBal) {
+                liquidatePosition(_profit.sub(nowBal));
+                nowBal = want.balanceOf(address(this));
+                if (_profit > nowBal) {
+                    _profit = nowBal;
+                }
+            }
+        }
+
         uint _losss;
         if (_debtOutstanding > 0) {
             (_debtPayment, _losss) = liquidatePosition(_debtOutstanding);
         }
         _loss = _loss.add(_losss);
+
+        if (_profit > _loss) {
+            _profit = _profit - _loss;
+            _loss = 0;
+        }
+        else {
+            _loss = _loss - _profit;
+            _profit = 0;
+        }
     }
 
     function adjustPosition(uint256 _debtOutstanding) internal override {
@@ -278,7 +302,7 @@ contract Strategy is BaseStrategy {
         if (getTotalDebtAmount() != 0 && 
             getmVaultRatio(_amountNeeded) < c.mul(1e2)) {
             uint p = _getPrice();
-            _withdrawDai(_amountNeeded.mul(p).mul(DENOMINATOR).div(c).div(1e18));
+            _withdrawDai(_amountNeeded.mul(p).mul(DENOMINATOR).mul(1e2).div(getmVaultRatio(0)).div(1e18));
             _freeWETHandWipeDAI(0, IERC20(dai).balanceOf(address(this)));
         }
         
