@@ -119,7 +119,7 @@ contract Strategy is BaseStrategy {
     }
 
     function delegatedAssets() external view override returns (uint256) {
-        return estimatedTotalAssets().mul(DENOMINATOR).mul(1e2).div(getmVaultRatio(0));
+        return estimatedTotalAssets().mul(DENOMINATOR).div(getmVaultRatio(0));
     }
 
     function prepareReturn(uint256 _debtOutstanding)
@@ -244,12 +244,12 @@ contract Strategy is BaseStrategy {
 
     function shouldDraw() public view returns (bool) {
         // buffer to avoid deposit/rebalance loops
-        return (getmVaultRatio(0) > (c.add(buffer)).mul(1e2));
+        return getmVaultRatio(0) > c.add(buffer);
     }
 
     function drawAmount() public view returns (uint) {
         // amount to draw to reach target ratio not accounting for debt ceiling
-        uint _safe = c.mul(1e2);
+        uint _safe = c;
         uint _current = getmVaultRatio(0);
         if (_current > DENOMINATOR.mul(c).mul(1e2)) {
             _current = DENOMINATOR.mul(c).mul(1e2);
@@ -272,11 +272,11 @@ contract Strategy is BaseStrategy {
 
     function shouldRepay() public view returns (bool) {
         // buffer to avoid deposit/rebalance loops
-        return (getmVaultRatio(0) < (c.sub(buffer/2)).mul(1e2));
+        return getmVaultRatio(0) < c.sub(buffer/2);
     }
     
     function repayAmount() public view returns (uint) {
-        uint _safe = c.mul(1e2);
+        uint _safe = c;
         uint _current = getmVaultRatio(0);
         if (_current < _safe) {
             uint d = getTotalDebtAmount();
@@ -299,14 +299,13 @@ contract Strategy is BaseStrategy {
         override
         returns (uint256 _liquidatedAmount, uint256 _loss)
     {
-        if (getTotalDebtAmount() != 0 && 
-            getmVaultRatio(_amountNeeded) < c.mul(1e2)) {
+        if (getTotalDebtAmount() != 0 && getmVaultRatio(_amountNeeded) < c) {
             uint p = _getPrice();
-            _withdrawDai(_amountNeeded.mul(p).mul(DENOMINATOR).mul(1e2).div(getmVaultRatio(0)).div(1e18));
+            _withdrawDai(_amountNeeded.mul(p).mul(DENOMINATOR).div(getmVaultRatio(0)).div(1e18));
             _freeWETHandWipeDAI(0, IERC20(dai).balanceOf(address(this)));
         }
         
-        if (getmVaultRatio(_amountNeeded) <= SpotLike(mcd_spot).ilks(ilk).mat.div(1e21)) {
+        if (getmVaultRatio(_amountNeeded) <= SpotLike(mcd_spot).ilks(ilk).mat.div(1e23)) {
             return (0, _amountNeeded);
         }
         else {
@@ -398,7 +397,7 @@ contract Strategy is BaseStrategy {
         }
 
         uint numerator = _balance.mul(delayedCPrice).div(1e18); // ray
-        return numerator.div(denominator).div(1e3);
+        return numerator.div(denominator).div(1e5);
     }
 
     function getUnderlyingDai() public view returns (uint) {
