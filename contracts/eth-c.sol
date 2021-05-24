@@ -249,15 +249,13 @@ contract Strategy is BaseStrategy {
 
     function drawAmount() public view returns (uint) {
         // amount to draw to reach target ratio not accounting for debt ceiling
-        uint _safe = c;
         uint _current = getmVaultRatio(0);
-        if (_current > DENOMINATOR.mul(c).mul(1e2)) {
-            _current = DENOMINATOR.mul(c).mul(1e2);
+        if (_current > (DENOMINATOR*2).mul(c)) {
+            _current = (DENOMINATOR*2).mul(c);
         }
-        if (_current > _safe) {
+        if (_current > c) {
             uint d = getTotalDebtAmount();
-            uint diff = _current.sub(_safe);
-            return d.mul(diff).div(_safe);
+            return d.mul(_current - c).div(c);
         }
         return 0;
     }
@@ -276,12 +274,10 @@ contract Strategy is BaseStrategy {
     }
     
     function repayAmount() public view returns (uint) {
-        uint _safe = c;
         uint _current = getmVaultRatio(0);
-        if (_current < _safe) {
+        if (_current < c) {
             uint d = getTotalDebtAmount();
-            uint diff = _safe.sub(_current);
-            return d.mul(diff).div(_safe);
+            return d.mul(c - _current).div(c);
         }
         return 0;
     }
