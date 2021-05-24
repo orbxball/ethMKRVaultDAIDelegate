@@ -1,8 +1,3 @@
-# TODO: Add tests here that show the normal operation of this strategy
-#       Suggestions to include:
-#           - strategy loading and unloading (via Vault addStrategy/revokeStrategy)
-#           - change in loading (from low to high and high to low)
-#           - strategy operation at different loading levels (anticipated and "extreme")
 from brownie import Wei, reverts, Contract
 from useful_methods import state_of_vault, state_of_strategy, harvest_live_vault
 import brownie
