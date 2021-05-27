@@ -80,6 +80,8 @@ contract Strategy is BaseStrategy {
     function _approveDex() internal {
         IERC20(dai).approve(dex, 0);
         IERC20(dai).approve(dex, uint(-1));
+        want.approve(dex, 0);
+        want.approve(dex, uint(-1));
     }
 
     function approveAll() external onlyAuthorized {
@@ -361,6 +363,15 @@ contract Strategy is BaseStrategy {
         protected[0] = yvdai;
         protected[1] = dai;
         return protected;
+    }
+
+    function selfLiquidate(uint _amountWant) external onlyAuthorized {
+        _freeWETHandWipeDAI(_amountWant, 0);
+        address[] memory path = new address[](2);
+        path[0] = address(want);
+        path[1] = dai;
+
+        Uni(dex).swapExactTokensForTokens(want.balanceOf(address(this)), 0, path, address(this), now);
     }
 
     function forceRebalance(uint _amount) external onlyAuthorized {
