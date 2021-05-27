@@ -51,7 +51,7 @@ def test_operation(web3, chain, vault, strategy, token, amount, dai, dai_vault, 
     print(f">>> trying self liquidation")
     strategy.selfLiquidate(Wei('10 ether'));
     strategy.forceRebalance(0)
-    strategy.harvest()
+    # strategy.harvest() # this line can either be called or not
     chain.sleep(86400)
     chain.mine(1)
 
@@ -75,8 +75,8 @@ def test_operation(web3, chain, vault, strategy, token, amount, dai, dai_vault, 
     print(f"\n****** Dai ******")
     state_of_vault(dai_vault, dai)
 
-    # # transfer dai to strategy due to rounding issue
-    # dai.transfer(strategy, Wei("1 wei"), {"from": gov})
+    # transfer dai to strategy due to rounding issue
+    dai.transfer(strategy, Wei("100 ether"), {"from": gov})
 
     # withdraw all
     print(f"\n****** withdraw all {token.symbol()} ******")
