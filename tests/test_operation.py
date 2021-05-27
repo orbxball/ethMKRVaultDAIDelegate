@@ -47,6 +47,20 @@ def test_operation(web3, chain, vault, strategy, token, amount, dai, dai_vault, 
     print("\n****** Dai ******")
     state_of_vault(dai_vault, dai)
 
+    print()
+    print(f">>> trying self liquidation")
+    strategy.selfLiquidate(Wei('10 ether'));
+    strategy.forceRebalance(0)
+    strategy.harvest()
+    chain.sleep(86400)
+    chain.mine(1)
+
+    print(f"\n****** {token.symbol()} ******")
+    state_of_strategy(strategy, token, vault)
+    state_of_vault(vault, token)
+    print("\n****** Dai ******")
+    state_of_vault(dai_vault, dai)
+
     # withdraw
     scale = 10 ** token.decimals()
     print(f"\n****** withdraw {token.symbol()} ******")
@@ -67,7 +81,7 @@ def test_operation(web3, chain, vault, strategy, token, amount, dai, dai_vault, 
     # withdraw all
     print(f"\n****** withdraw all {token.symbol()} ******")
     print(f"whale's {token.symbol()} vault share: {vault.balanceOf(whale)/scale}")
-    vault.withdraw({"from": whale})
+    vault.withdraw(vault.balanceOf(whale), whale, 10_000, {"from": whale})
     print(f"withdraw all {token.symbol()}")
     print(f"whale's {token.symbol()} vault share: {vault.balanceOf(whale)/scale}")
 
