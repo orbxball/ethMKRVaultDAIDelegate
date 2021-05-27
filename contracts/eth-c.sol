@@ -74,10 +74,12 @@ contract Strategy is BaseStrategy {
         VatLike(vat).hope(mcd_join_dai);
         IERC20(dai).approve(yvdai, 0);
         IERC20(dai).approve(yvdai, uint(-1));
-        IERC20(dai).approve(uniswap, 0);
-        IERC20(dai).approve(uniswap, uint(-1));
-        IERC20(dai).approve(sushiswap, 0);
-        IERC20(dai).approve(sushiswap, uint(-1));
+        _approveDex();
+    }
+
+    function _approveDex() internal {
+        IERC20(dai).approve(dex, 0);
+        IERC20(dai).approve(dex, uint(-1));
     }
 
     function approveAll() external onlyAuthorized {
@@ -103,6 +105,7 @@ contract Strategy is BaseStrategy {
     function switchDex(bool isUniswap) external onlyAuthorized {
         if (isUniswap) dex = uniswap;
         else dex = sushiswap;
+        _approveDex();
     }
 
     function estimatedTotalAssets() public view override returns (uint256) {
