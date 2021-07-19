@@ -136,14 +136,14 @@ contract Strategy is BaseStrategy {
             uint256 _debtPayment
         )
     {
-        uint before = want.balanceOf(address(this));
+        uint before = balanceOfWant();
         uint v = getUnderlyingDai();
         uint d = getTotalDebtAmount();
         if (v > d) {
             _withdrawDai(v.sub(d));
             _swap(IERC20(dai).balanceOf(address(this)));
         }
-        uint nowBal = want.balanceOf(address(this));
+        uint nowBal = balanceOfWant();
         _profit = nowBal.sub(before);
 
         uint _total = estimatedTotalAssets();
@@ -160,7 +160,7 @@ contract Strategy is BaseStrategy {
             }
             if (_profit > nowBal) {
                 liquidatePosition(_profit.sub(nowBal));
-                nowBal = want.balanceOf(address(this));
+                nowBal = balanceOfWant();
                 if (_profit > nowBal) {
                     _profit = nowBal;
                 }
@@ -194,7 +194,7 @@ contract Strategy is BaseStrategy {
     }
 
     function _deposit() internal {
-        uint _token = want.balanceOf(address(this));
+        uint _token = balanceOfWant();
         if (_token == 0) return;
 
         uint p = _getPrice();
@@ -373,7 +373,7 @@ contract Strategy is BaseStrategy {
         path[0] = address(want);
         path[1] = dai;
 
-        Uni(dex).swapExactTokensForTokens(want.balanceOf(address(this)), 0, path, address(this), now);
+        Uni(dex).swapExactTokensForTokens(balanceOfWant(), 0, path, address(this), now);
     }
 
     function forceRebalance(uint _amount) external onlyAuthorized {
