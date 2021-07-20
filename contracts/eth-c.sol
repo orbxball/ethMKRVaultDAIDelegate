@@ -310,10 +310,10 @@ contract Strategy is BaseStrategy {
             return (0, _amountNeeded);
         }
         else {
-            uint _free = _amountNeeded < balanceOfmVault() ? _amountNeeded: balanceOfmVault();
-            _freeWETHandWipeDAI(_free, 0);
-            _liquidatedAmount = _free;
-            _loss = _amountNeeded.sub(_liquidatedAmount);
+            uint _balance = balanceOfmVault();
+            _liquidatedAmount = _amountNeeded < _balance ? _amountNeeded: _balance;
+            _freeWETHandWipeDAI(_liquidatedAmount, 0);
+            if (_amountNeeded > _liquidatedAmount) _loss = _amountNeeded - _liquidatedAmount;
         }
     }
 
